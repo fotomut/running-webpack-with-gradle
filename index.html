@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.3">
-<title>Using Node.js Libraries</title>
+<title>Running Webpack with Gradle</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
 <link rel="stylesheet" href="https://guides.gradle.org/asciidoctor.css">
@@ -31,24 +31,40 @@
 </script>
 </head>
 <body class="article toc2 toc-right">
-<div id="header"><div style="padding-top: 10px;"><a href="https://guides.gradle.org"><img src="http://guides.gradle.org/gradle-guides.svg" alt=""></a></div><h1>Using Node.js Libraries</h1>
+<div id="header"><div style="padding-top: 10px;"><a href="https://guides.gradle.org"><img src="http://guides.gradle.org/gradle-guides.svg" alt=""></a></div><h1>Running Webpack with Gradle</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#what_you_ll_build">What you&#8217;ll build</a></li>
 <li><a href="#what_you_ll_need">What you&#8217;ll need</a></li>
-<li><a href="#step_1">Step 1</a></li>
-<li><a href="#step_2">Step 2</a></li>
-<li><a href="#step_n">Step N</a></li>
-<li><a href="#summary">Summary</a></li>
+<li><a href="#step_1_create_sample_project_and_install_dependencies">Step 1: Create sample project and install dependencies</a></li>
+<li><a href="#step_2_create_an_exec_task">Step 2: Create an Exec Task</a></li>
+<li><a href="#step_3_declare_task_inputs_and_outputs">Step 3: Declare task inputs and outputs</a></li>
+<li><a href="#step_4_leverage_gradle_build_cache">Step 4: Leverage Gradle Build Cache</a></li>
+<li><a href="#next_steps">Next Steps</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Many web applications are built today with distinctly different server-side and client-side technologies. In order to run these applications, both server-side and client-side sources must be built and packaged. Webpack has emerged as the tool of choice among JavaScript developers for bundling client-side assets.</p>
+</div>
+<div class="paragraph">
+<p>With some care, a smart developer team can develop a system that leverages the benefits of both Gradle and Webpack with minimal overhead to optimize engineering throughput. This guide is meant to be a beginning of that path.</p>
+</div>
+<div class="paragraph">
+<p>Tradeoffs are inherent in any engineering decision, and they are covered in the topical guide for Managing JavaScript with Gradle (coming soon).</p>
+</div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="what_you_ll_build"><a class="anchor" href="#what_you_ll_build"></a>What you&#8217;ll build</h2>
 <div class="sectionbody">
-
+<div class="paragraph">
+<p>You will create a Gradle task that executes <a href="https://webpack.js.org/">Webpack</a> in a way that leverages Gradle&#8217;s <a href="https://docs.gradle.org/4.0-rc-1/userguide/more_about_tasks.html#sec:up_to_date_checks">up-to-date checks</a> and <a href="https://docs.gradle.org/4.0-rc-1/userguide/build_cache.html">build cache</a>.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -60,70 +76,435 @@
 <p>About <span class="time-to-complete-text"></span></p>
 </li>
 <li>
-<p>A text editor</p>
-</li>
-<li>
-<p>A command prompt</p>
+<p>A text editor or IDE</p>
 </li>
 <li>
 <p>The Java Development Kit (JDK), version 1.7 or higher</p>
 </li>
 <li>
-<p>A <a href="https://gradle.org/install">Gradle distribution</a>, version 3.5 or better</p>
+<p>Node.js, version 8.0 or higher</p>
+</li>
+<li>
+<p>A <a href="https://gradle.org/install">Gradle distribution</a>, version 4.0-rc-1 or better</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="step_1"><a class="anchor" href="#step_1"></a>Step 1</h2>
+<h2 id="step_1_create_sample_project_and_install_dependencies"><a class="anchor" href="#step_1_create_sample_project_and_install_dependencies"></a>Step 1: Create sample project and install dependencies</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The first step is to create a folder for the new project and add a <a href="https://docs.gradle.org/3.5/userguide/gradle_wrapper.html#sec:wrapper_generation">Gradle Wrapper</a> to the project.</p>
+<p>Setup a trivial web application by running these commands and copying sources to the files listed.</p>
+</div>
+<div class="sect2">
+<h3 id="step_1_1_create_sample_project"><a class="anchor" href="#step_1_1_create_sample_project"></a>Step 1.1: Create sample project</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This demo project is derived from <a href="https://webpack.js.org/guides/get-started/">Webpack&#8217;s Getting Started Guide</a>. Learn more Webpack usage at <a href="https://webpack.js.org/guides/" class="bare">https://webpack.js.org/guides/</a>.
+</td>
+</tr>
+</table>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>$ mkdir using-node-js-libraries
-$ cd using-node-js-libraries
-$ gradle wrapper <i class="conum" data-value="1"></i><b>(1)</b>
+<pre>$ mkdir -p gradle-webpack-demo/app
+$ cd gradle-webpack-demo</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">app/index.js</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="javascript"><span class="reserved">import</span> _ from <span class="string"><span class="delimiter">'</span><span class="content">lodash</span><span class="delimiter">'</span></span>;
 
-:wrapper
+<span class="keyword">function</span> <span class="function">component</span> () {
+  <span class="keyword">var</span> element = document.createElement(<span class="string"><span class="delimiter">'</span><span class="content">div</span><span class="delimiter">'</span></span>);
 
-BUILD SUCCESSFUL</pre>
+  <span class="comment">/* lodash is required for the next line to work */</span>
+  element.innerHTML = _.join([<span class="string"><span class="delimiter">'</span><span class="content">Build</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">together</span><span class="delimiter">'</span></span>], <span class="string"><span class="delimiter">'</span><span class="content"> </span><span class="delimiter">'</span></span>);
+
+  <span class="keyword">return</span> element;
+}
+
+document.body.appendChild(component());</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">index.html</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="html"><span class="tag">&lt;html&gt;</span>
+  <span class="tag">&lt;head&gt;</span>
+    <span class="tag">&lt;title&gt;</span>Gradle + Webpack Demo<span class="tag">&lt;/title&gt;</span>
+  <span class="tag">&lt;/head&gt;</span>
+  <span class="tag">&lt;body&gt;</span>
+    <span class="tag">&lt;script</span> <span class="attribute-name">src</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">build/js/bundle.js</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="tag">&lt;/script&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>This allows a version of Gradle to be locked to a project and henceforth you can use <code>./gradlew</code> instead of <code>gradle</code>.</td>
+<td>Webpack-generated JS bundle will include index.js and lodash</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="step_1_2_install_webpack_and_lodash"><a class="anchor" href="#step_1_2_install_webpack_and_lodash"></a>Step 1.2: Install Webpack and lodash</h3>
+<div class="listingblock">
+<div class="content">
+<pre>$ npm init -y
+$ npm install --save lodash@~4
+$ npm install --save-dev webpack@~2</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once completed successfully, your project structure should look like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>.
+├── app
+│   └── index.js
+├── index.html
+├── node_modules
+│   └── lodash
+│   └── webpack
+├── package-lock.json
+└── package.json</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+package-lock.json is present only for npm v5+, which is a recommended upgrade.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="step_2_create_an_exec_task"><a class="anchor" href="#step_2_create_an_exec_task"></a>Step 2: Create an Exec Task</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Command-line processes can be invoked through Gradle <a href="https://docs.gradle.org/current/dsl/org.gradle.api.tasks.Exec.html">Exec</a> tasks.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://docs.gradle.org/4.0-rc-1/userguide/custom_tasks.html">Custom Task Classes</a> are recommended for more complex uses, for example if one wants dev (debug with sourcemaps) and production variants.</p>
+</div>
+<div class="sect2">
+<h3 id="step_2_1_create_gradle_task"><a class="anchor" href="#step_2_1_create_gradle_task"></a>Step 2.1: Create Gradle task</h3>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">task webpack(<span class="key">type</span>: Exec) { <i class="conum" data-value="1"></i><b>(1)</b>
+    commandLine <span class="string"><span class="delimiter">&quot;</span><span class="content">./node_modules/.bin/webpack</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">app/index.js</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="inline"><span class="inline-delimiter">$</span>buildDir</span><span class="content">/js/bundle.js</span><span class="delimiter">&quot;</span></span>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Declare an Exec task to invoke <code>webpack</code></td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Executing the <code>webpack</code> task</div>
+<div class="content">
+<pre>$ gradle webpack
+
+&gt; Task :webpack
+Hash: cebd0a554d64bf1868af
+Version: webpack 2.6.1
+Time: 406ms
+    Asset    Size  Chunks                    Chunk Names
+bundle.js  544 kB       0  [emitted]  [big]  main
+   [0] ./~/lodash/lodash.js 540 kB {0} [built]
+   [1] ./app/index.js 269 bytes {0} [built]
+   [2] (webpack)/buildin/global.js 509 bytes {0} [built]
+   [3] (webpack)/buildin/module.js 517 bytes {0} [built]
+
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 executed</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can now serve your project directory using your favorite web server and see "Build together"</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="step_2_2_serve_web_application_locally"><a class="anchor" href="#step_2_2_serve_web_application_locally"></a>Step 2.2: Serve web application locally</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash"># Pick your favorite one-liner or use your own
+$ python -m SimpleHTTPServer 8000
+$ ruby -run -ehttpd . -p8000
+$ npm install -g http-server &amp;&amp; $_ -p 8000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should now be able to see your web app at <code>localhost:8000</code>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="step_3_declare_task_inputs_and_outputs"><a class="anchor" href="#step_3_declare_task_inputs_and_outputs"></a>Step 3: Declare task inputs and outputs</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>So far, all we&#8217;ve managed to achieve is a bit of overhead over running <code>webpack</code> directly. Now you can start to avoid work that&#8217;s already been done through Gradle&#8217;s <a href="https://docs.gradle.org/4.0-rc-1/userguide/more_about_tasks.html#sec:up_to_date_checks">up-to-date checks</a> (AKA incremental build).</p>
+</div>
+<div class="paragraph">
+<p>In order to take advantage of up-to-date checks, you must declare the inputs and outputs of your task. Change your task implementation in your Gradle build this way:</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">task webpack(<span class="key">type</span>: Exec) {
+    commandLine <span class="string"><span class="delimiter">&quot;</span><span class="content">webpack</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">app/index.js</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="inline"><span class="inline-delimiter">$</span>buildDir</span><span class="content">/js/bundle.js</span><span class="delimiter">&quot;</span></span>
+
+    inputs.file(<span class="string"><span class="delimiter">&quot;</span><span class="content">package-lock.json</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="1"></i><b>(1)</b>
+    inputs.dir(<span class="string"><span class="delimiter">&quot;</span><span class="content">app</span><span class="delimiter">&quot;</span></span>)
+    outputs.dir(<span class="string"><span class="delimiter">&quot;</span><span class="inline"><span class="inline-delimiter">$</span>buildDir</span><span class="content">/js</span><span class="delimiter">&quot;</span></span>)      <i class="conum" data-value="2"></i><b>(2)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Declare <code>package-lock.json</code> and everything under <code>app/</code> as an input</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Declare <code>build/js</code> as the output location</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Executing the <code>webpack</code> task with no changes</div>
+<div class="content">
+<pre>$ gradle webpack
+$ gradle webpack <i class="conum" data-value="1"></i><b>(1)</b>
+
+BUILD SUCCESSFUL in 0s
+1 actionable task: 1 up-to-date <i class="conum" data-value="2"></i><b>(2)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Gradle will detect that the task changed for the 1st invocation and will execute <code>webpack</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Gradle recognizes when JS sources haven&#8217;t been changed. <code>webpack</code> bundles are <code>UP-TO-DATE</code> and don&#8217;t need to be generated</td>
 </tr>
 </table>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="step_2"><a class="anchor" href="#step_2"></a>Step 2</h2>
+<h2 id="step_4_leverage_gradle_build_cache"><a class="anchor" href="#step_4_leverage_gradle_build_cache"></a>Step 4: Leverage Gradle Build Cache</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>As of Gradle 4.0, Gradle can avoid work that has already been done on different VCS branches or by other machines via the <a href="https://docs.gradle.org/4.0-rc-1/userguide/build_cache.html">Build Cache</a>.</p>
+</div>
+<div class="paragraph">
+<p>For example, suppose someone else pushed JS changes that were subsequently built by CI, which then populated a shared remote build cache for other developers. Using the same webpack config and no JS changes, you can avoid re-bundling JS via Webpack and download the bundles straight from the build cache, thus saving significant bundling time.</p>
+</div>
+<div class="sect2">
+<h3 id="step_4_1_make_webpack_task_cacheable"><a class="anchor" href="#step_4_1_make_webpack_task_cacheable"></a>Step 4.1: Make webpack task cacheable</h3>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">task webpack(<span class="key">type</span>: Exec) {
+    commandLine <span class="string"><span class="delimiter">&quot;</span><span class="content">webpack</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">app/index.js</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="inline"><span class="inline-delimiter">$</span>buildDir</span><span class="content">/js/bundle.js</span><span class="delimiter">&quot;</span></span>
 
+    inputs.file(<span class="string"><span class="delimiter">&quot;</span><span class="content">package-lock.json</span><span class="delimiter">&quot;</span></span>).withPathSensitivity(PathSensitivity.RELATIVE) <i class="conum" data-value="1"></i><b>(1)</b>
+    inputs.dir(<span class="string"><span class="delimiter">&quot;</span><span class="content">app</span><span class="delimiter">&quot;</span></span>).withPathSensitivity(PathSensitivity.RELATIVE)
+    outputs.dir(<span class="string"><span class="delimiter">&quot;</span><span class="inline"><span class="inline-delimiter">$</span>buildDir</span><span class="content">/js</span><span class="delimiter">&quot;</span></span>)
+    outputs.cacheIf { <span class="predefined-constant">true</span> } <i class="conum" data-value="2"></i><b>(2)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Declare that inputs should be snapshotted with relative file references.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Always attempt to use build cache if task succeeds. This condition can be changed to only use cache on CI. Learn more in Build Cache guides.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+It is strongly advised to use a <a href="https://docs.gradle.org/4.0-rc-1/userguide/custom_tasks.html">custom task class</a> when writing cacheable tasks. An example of one for webpack is provided in the Managing JavaScript guide (coming soon). Learn more about best practices of using the Gradle Build Cache from the <a href="https://guides.gradle.org/build-cache-practices/">Build Cache topical guide</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="step_4_2_run_code_webpack_code_to_populate_gradle_build_cache"><a class="anchor" href="#step_4_2_run_code_webpack_code_to_populate_gradle_build_cache"></a>Step 4.2: Run <code>webpack</code> to populate Gradle Build Cache</h3>
+<div class="listingblock">
+<div class="content">
+<pre>$ gradle webpack --build-cache <i class="conum" data-value="1"></i><b>(1)</b>
+Build cache is an incubating feature.
+Using local directory build cache for the root build (location = ~/.gradle/caches/build-cache-1).
+
+&gt; Task :webpack
+Hash: cebd0a554d64bf1868af
+Version: webpack 2.6.1
+Time: 411ms
+····Asset    Size  Chunks                    Chunk Names
+bundle.js  544 kB       0  [emitted]  [big]  main
+···[0] ./~/lodash/lodash.js 540 kB {0} [built]
+···[1] ./app/index.js 269 bytes {0} [built]
+···[2] (webpack)/buildin/global.js 509 bytes {0} [built]
+···[3] (webpack)/buildin/module.js 517 bytes {0} [built]
+
+
+BUILD SUCCESSFUL in 2s
+2 actionable tasks: 2 executed</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Enable Gradle Build Cache. Can also use <code>org.gradle.cache=true</code> in <code>gradle.properties</code></td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="step_4_3_make_a_small_javascript_change"><a class="anchor" href="#step_4_3_make_a_small_javascript_change"></a>Step 4.3: Make a small JavaScript change</h3>
+<div class="listingblock">
+<div class="title">app/index.js</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="diff"><span class="line delete"><span class="delete">-</span>  element.innerHTML = _.join(['Build', 'together'], ' ');</span>
+<span class="line insert"><span class="insert">+</span>  element.innerHTML = _.join(['Build', 'together<span class="eyecatcher">;', 'not', 'alone.</span>'], ' ');</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="step_4_4_re_run_code_webpack_code_to_bundle_changes"><a class="anchor" href="#step_4_4_re_run_code_webpack_code_to_bundle_changes"></a>Step 4.4: Re-run <code>webpack</code> to bundle changes</h3>
+<div class="listingblock">
+<div class="content">
+<pre>$ gradle webpack --build-cache
+Build cache is an incubating feature.
+Using local directory build cache for the root build (location = ~/.gradle/caches/build-cache-1).
+
+&gt; Task :webpack
+Hash: f86580c7ddca3e9d092a
+Version: webpack 2.6.1
+Time: 413ms
+    Asset    Size  Chunks                    Chunk Names
+bundle.js  544 kB       0  [emitted]  [big]  main
+   [0] ./~/lodash/lodash.js 540 kB {0} [built]
+   [1] ./app/index.js 287 bytes {0} [built]
+   [2] (webpack)/buildin/global.js 509 bytes {0} [built]
+   [3] (webpack)/buildin/module.js 517 bytes {0} [built]
+
+
+BUILD SUCCESSFUL in 2s
+1 actionable task: 1 executed</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="step_4_5_reset_changes"><a class="anchor" href="#step_4_5_reset_changes"></a>Step 4.5: "reset" changes</h3>
+<div class="listingblock">
+<div class="title">app/index.js</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="diff"><span class="line delete"><span class="delete">-</span>  element.innerHTML = _.join(['Build', 'together<span class="eyecatcher">;', 'not', 'alone.</span>'], ' ');</span>
+<span class="line insert"><span class="insert">+</span>  element.innerHTML = _.join(['Build', 'together'], ' ');</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="step_4_6_resolve_js_bundle_from_build_cache"><a class="anchor" href="#step_4_6_resolve_js_bundle_from_build_cache"></a>Step 4.6: Resolve JS bundle from build cache</h3>
+<div class="listingblock">
+<div class="content">
+<pre>$ gradle --build-cache webpack
+Build cache is an incubating feature.
+Using local directory build cache for the root build (location = ~/.gradle/caches/build-cache-1).
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 from cache <i class="conum" data-value="1"></i><b>(1)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>webpack</code> was not executed. <code>build/js/bundle.js</code> was loaded from the build cache instead.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Even though we made changes (also works when switching git branches), we didn&#8217;t have to re-bundle our JavaScript!</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="step_n"><a class="anchor" href="#step_n"></a>Step N</h2>
+<h2 id="next_steps"><a class="anchor" href="#next_steps"></a>Next Steps</h2>
 <div class="sectionbody">
-
+<div class="paragraph">
+<p>We&#8217;ve avoided re-executing <code>webpack</code> a couple different ways, and begun the path to a workflow that is often faster.</p>
+</div>
+<div class="paragraph">
+<p>This additional work gets more useful as projects grow and team members are able to take advantage of computation others have already done. This is one of the fundamental goals of <a href="https://gradle.com/enterprise">Gradle Enterprise</a>.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Build together; not alone.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>Of course, it&#8217;s <em>never</em> this simple. You are now ready to explore the nuance and tradeoffs of managing JavaScript with Gradle, through Webpack.</p>
+</div>
+<div class="sect2">
+<h3 id="help_improve_this_guide"><a class="anchor" href="#help_improve_this_guide"></a>Help improve this guide</h3>
+<div class="paragraph">
+<p>Have feedback or a question? Found a typo? Like all Gradle guides, help is just a GitHub issue away. Please add an issue or pull request to <a href="https://github.com/gradle-guides/running-webpack-with-gradle">gradle-guides/running-webpack-with-gradle</a> and we’ll get back to you.</p>
 </div>
 </div>
-<div class="sect1">
-<h2 id="summary"><a class="anchor" href="#summary"></a>Summary</h2>
-<div class="sectionbody">
-
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-05-31 10:33:56 UTC
+Last updated 2017-06-02 18:23:16 UTC
 </div>
 </div>
 </body>
