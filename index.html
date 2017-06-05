@@ -52,7 +52,7 @@
 <p>Many web applications are built today with distinctly different server-side and client-side technologies. In order to run these applications, both server-side and client-side sources must be built and packaged. Webpack has emerged as the tool of choice among JavaScript developers for bundling client-side assets.</p>
 </div>
 <div class="paragraph">
-<p>Tradeoffs are inherent in any engineering decision, but using disjointed tools can slow down very capable development teams. Gradle provides scaffolding to integrate with everything, even Webpack and other JavaScript development tools. More information about managing Webpack with Gradle (including hot reloading) is covered in an in-depth topical guide (coming soon).</p>
+<p>Tradeoffs are inherent in any engineering decision, but using disjointed tools can slow down very capable development teams. Gradle provides mechanisms to integrate with everything, even Webpack and other JavaScript development tools. More information about managing Webpack with Gradle (including hot reloading) is covered in an in-depth topical guide (coming soon).</p>
 </div>
 <div class="paragraph">
 <p>This guide will start you down a path that leverages the benefits of both Gradle and <a href="https://webpack.js.org/">Webpack</a> with minimal overhead.</p>
@@ -297,10 +297,9 @@ BUILD SUCCESSFUL in 1s
 <p>Execute <code>gradle webpack</code> to verify your configuration. We have changed the declared task inputs and outputs, so <code>webpack</code> will be run.</p>
 </div>
 <div class="paragraph">
-<p>Now executing <code>webpack</code> with no changes to web assets will avoid unnecessarily invoking Webpack:</p>
+<p>Now executing <code>gradle webpack</code> with no changes to web assets won&#8217;t unnecessarily invoke Webpack:</p>
 </div>
 <div class="listingblock">
-<div class="title">Executing the <code>webpack</code> task with no changes</div>
 <div class="content">
 <pre>$ gradle webpack
 
@@ -466,7 +465,7 @@ BUILD SUCCESSFUL in 1s
 </table>
 </div>
 <div class="paragraph">
-<p>Even though you just made changes, re-bundling is not necessary. This same mechanism works well when switching git branches and other common development workflows.</p>
+<p>Even though you just made changes, re-bundling is not necessary. This same mechanism works well when switching git branches and other common development workflows. It works even better when you can <a href="https://gradle.com/build-cache">reuse outputs from remote builds</a>.</p>
 </div>
 </div>
 </div>
@@ -475,13 +474,10 @@ BUILD SUCCESSFUL in 1s
 <h2 id="next_steps"><a class="anchor" href="#next_steps"></a>Next Steps</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Congratulations! You now have a Gradle task that executes Webpack, but only when web assets change.</p>
+<p>Congratulations! You now have a Gradle task that executes Webpack, but only when web assets change. The benefits of using Gradle increase as your project grows.</p>
 </div>
 <div class="paragraph">
-<p>For medium and large-sized projects, it is more important to take advantage of computation and information computers have created, in order to save time — this is one of the fundamental goals of <a href="https://gradle.com/enterprise">Gradle Enterprise</a>.</p>
-</div>
-<div class="paragraph">
-<p>Chances are, your needs are more complex. If so, the topical guide Managing JavaScript with Gradle (coming soon) is for you. Happy <a href="https://webpack.js.org/">Webpack</a> bundling!</p>
+<p>Chances are, your needs are more complex. If so, the topical guide Managing JavaScript with Gradle (coming soon) is for you. Happy bundling!</p>
 </div>
 <div class="sect2">
 <h3 id="help_improve_this_guide"><a class="anchor" href="#help_improve_this_guide"></a>Help improve this guide</h3>
@@ -494,7 +490,7 @@ BUILD SUCCESSFUL in 1s
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-06-05 17:14:41 UTC
+Last updated 2017-06-05 23:15:43 UTC
 </div>
 </div>
 </body>
