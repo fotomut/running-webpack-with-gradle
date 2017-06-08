@@ -56,7 +56,7 @@
 <p>Many web applications are built today with distinctly different server-side and client-side technologies. In order to run these applications, both server-side and client-side sources must be built and packaged. Webpack has emerged as the tool of choice among JavaScript developers for bundling client-side assets.</p>
 </div>
 <div class="paragraph">
-<p>Tradeoffs are inherent in any engineering decision, but using disjointed tools can slow down very capable development teams. Gradle provides mechanisms to integrate with everything, even Webpack and other JavaScript development tools. More information about managing Webpack with Gradle (including hot reloading) is covered in an in-depth topical guide (coming soon).</p>
+<p>Tradeoffs are inherent in any engineering decision, but using disjointed tools can slow down very capable development teams. Gradle provides mechanisms to integrate with almost any other toolchain, including Webpack and other JavaScript development tools. More information about managing Webpack with Gradle (including hot reloading) is covered in an in-depth topical guide (coming soon).</p>
 </div>
 <div class="paragraph">
 <p>This guide will start you down a path that leverages the benefits of both Gradle and <a href="https://webpack.js.org/">Webpack</a> with minimal overhead.</p>
@@ -129,7 +129,7 @@ $ cd gradle-webpack-demo</pre>
 <span class="keyword">function</span> <span class="function">component</span> () {
   <span class="keyword">var</span> element = document.createElement(<span class="string"><span class="delimiter">'</span><span class="content">div</span><span class="delimiter">'</span></span>);
 
-  <span class="comment">/* lodash is required for the next line to work */</span>
+  <span class="comment">/* lodash is used here for bundling demonstration purposes */</span>
   element.innerHTML = _.join([<span class="string"><span class="delimiter">'</span><span class="content">Build</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">together;</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">not</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">alone</span><span class="delimiter">'</span></span>], <span class="string"><span class="delimiter">'</span><span class="content"> </span><span class="delimiter">'</span></span>);
 
   <span class="keyword">return</span> element;
@@ -349,11 +349,11 @@ BUILD SUCCESSFUL in 0s
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Declare that inputs should be snapshotted with relative file references.</td>
+<td>Declare package-lock.json and app to be relocatable. <a href="https://guides.gradle.org/build-cache-practices/#relocatability">Learn why this is important for caching</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Always cache this task&#8217;s outputs. This requires that the build cache is enabled.</td>
+<td>Tell Gradle to always cache this task&#8217;s outputs if the build cache is enabled.</td>
 </tr>
 </table>
 </div>
@@ -469,7 +469,7 @@ BUILD SUCCESSFUL in 1s
 </table>
 </div>
 <div class="paragraph">
-<p>Even though you just made changes, re-bundling is not necessary. This same mechanism works well when switching git branches and other common development workflows. It works even better when you can <a href="https://gradle.com/build-cache">reuse outputs from remote builds</a>.</p>
+<p>Even though you just made changes, re-bundling is not necessary. This same mechanism works well when switching git branches and other common development workflows.</p>
 </div>
 </div>
 </div>
@@ -481,7 +481,20 @@ BUILD SUCCESSFUL in 1s
 <p>Congratulations! You now have a Gradle task that executes Webpack, but only when web assets change. The benefits of using Gradle increase as your project grows.</p>
 </div>
 <div class="paragraph">
-<p>Chances are, your needs are more complex. If so, the topical guide Managing JavaScript with Gradle (coming soon) is for you. Happy bundling!</p>
+<p>Chances are, your needs are more complex. There are 2 next steps from here:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If you&#8217;re worried about the complexity of introducing a remote cache to your build process, Gradle Enterprise <a href="https://gradle.com/build-cache">has you covered</a>!</p>
+</li>
+<li>
+<p>The <a href="https://github.com/gradle/guides/issues/119">Managing JavaScript with Gradle topical guide</a> (coming soon) covers development workflows, integration with other JS tools, and provides example Gradle tasks.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Happy bundling!</p>
 </div>
 <div class="sect2">
 <h3 id="help_improve_this_guide"><a class="anchor" href="#help_improve_this_guide"></a>Help improve this guide</h3>
@@ -494,7 +507,7 @@ BUILD SUCCESSFUL in 1s
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-06-07 14:38:32 UTC
+Last updated 2017-06-08 18:08:25 UTC
 </div>
 </div>
 </body>
