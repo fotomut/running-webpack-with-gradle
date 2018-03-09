@@ -100,7 +100,7 @@ NOTE: https://guides.gradle.org/writing-gradle-tasks/[Custom Task Classes] are h
 [source,groovy]
 ----
 task webpack(type: Exec) { // <1>
-    commandLine "$projectDir/node_modules/.bin/webpack", "app/index.js", "$buildDir/js/bundle.js"
+    commandLine "$projectDir/node_modules/.bin/webpack", "app/index.js", "--output", "$buildDir/js/bundle.js"
 }
 ----
 <1> Declare an Exec task to invoke `webpack`
